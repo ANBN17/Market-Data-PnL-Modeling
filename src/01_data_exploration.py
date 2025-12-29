@@ -1,0 +1,135 @@
+# ============================================================
+# Market Data Analysis & PnL Modeling
+# ============================================================
+# This script:
+# - Downloads equity price data
+# - Computes returns, PnL, volatility, and drawdowns
+# - Plots equity curves and risk metrics
+# ============================================================
+
+# -----------------------------
+# 1. Imports & Setup
+# -----------------------------
+import numpy as np
+import pandas as pd
+import yfinance as yf
+import matplotlib.pyplot as plt
+
+plt.style.use("seaborn-v0_8")
+
+# -----------------------------
+# 2. Download Market Data
+# -----------------------------
+tickers = ["AAPL", "MSFT", "SPY"]
+start_date = "2020-01-01"
+end_date = "2024-01-01"
+
+prices = yf.download(
+    tickers,
+    start=start_date,
+    end=end_date,
+    auto_adjust=True
+)["Close"]
+
+print("Price data preview:")
+print(prices.head())
+
+# -----------------------------
+# 3. Compute Daily Returns
+# -----------------------------
+returns = prices.pct_change().dropna()
+
+print("\nReturn statistics:")
+print(returns.describe())
+
+# -----------------------------
+# 4. Cumulative PnL / Equity Curves
+# -----------------------------
+equity_curve = (1 + returns).cumprod()
+
+equity_curve.plot(
+    title="Cumulative Returns (Equity Curves)",
+    figsize=(10, 6)
+)
+plt.ylabel("Growth of $1")
+plt.show()
+
+# -----------------------------
+# 5. Volatility (Annualized)
+# -----------------------------
+annualized_volatility = returns.std() * np.sqrt(252)
+
+print("\nAnnualized Volatility:")
+print(annualized_volatility)
+
+# -----------------------------
+# 6. Drawdown Calculation
+# -----------------------------
+rolling_max = equity_curve.cummax()
+drawdown = equity_curve / rolling_max - 1
+max_drawdown = drawdown.min()
+
+print("\nMaximum Drawdowns:")
+print(max_drawdown)
+
+# -----------------------------
+# 7. Drawdown Visualization
+# -----------------------------
+drawdown.plot(
+    title="Drawdowns",
+    figsize=(10, 6)
+)
+plt.ylabel("Drawdown")
+plt.show()
+
+# -----------------------------
+# 8. Risk Summary Table
+# -----------------------------
+risk_summary = pd.DataFrame({
+    "Annualized Volatility": annualized_volatility,
+    "Maximum Drawdown": max_drawdown
+})
+
+print("\nRisk Summary:")
+print(risk_summary)
+
+# -----------------------------
+# 9. Equal-Weighted Portfolio
+# -----------------------------
+weights = np.array([1/len(tickers)] * len(tickers))
+
+portfolio_returns = returns.dot(weights)
+portfolio_equity = (1 + portfolio_returns).cumprod()
+
+portfolio_equity.plot(
+    title="Equal-Weighted Portfolio Equity Curve",
+    figsize=(10, 6)
+)
+plt.ylabel("Growth of $1")
+plt.show()
+
+# -----------------------------
+# 10. Portfolio Risk Metrics
+# -----------------------------
+portfolio_volatility = portfolio_returns.std() * np.sqrt(252)
+
+rolling_max_portfolio = portfolio_equity.cummax()
+portfolio_drawdown = portfolio_equity / rolling_max_portfolio - 1
+portfolio_max_drawdown = portfolio_drawdown.min()
+
+print("\nPortfolio Annualized Volatility:", portfolio_volatility)
+print("Portfolio Maximum Drawdown:", portfolio_max_drawdown)
+
+# -----------------------------
+# 11. Final Summary
+# -----------------------------
+portfolio_summary = pd.DataFrame({
+    "Portfolio Volatility": [portfolio_volatility],
+    "Portfolio Max Drawdown": [portfolio_max_drawdown]
+})
+
+print("\nPortfolio Summary:")
+print(portfolio_summary)
+
+
+
