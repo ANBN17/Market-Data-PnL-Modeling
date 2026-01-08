@@ -1,7 +1,5 @@
 # Market-Data-PnL-Modeling
-Python-based project for market data analysis, PnL modeling, and risk metrics including returns, volatility, and drawdowns.
 
-# Project 1: Market Data Analysis & PnL Modeling
 
 ## Overview
 This project builds a foundational quantitative analysis pipeline to evaluate equity market performance and portfolio risk. Using real historical market data, the project computes returns, profit-and-loss (PnL), volatility, drawdowns, and correlation structures, and visualizes key risk metrics commonly used in professional trading and asset management environments.
